@@ -1,19 +1,17 @@
 import { ObjectId } from "mongodb";
 import { collections } from "../../db";
 
-export type CollectionDetailsEntity = {
+export type BenefitDetailsEntity = {
   title: string;
   description: string;
-  collectionAddress: string;
+  imageId: string;
 };
 
-export type CollectionDetailsMongoEntity = {
-  details: CollectionDetailsEntity;
+export type BenefitDetailsMongoEntity = {
+  details: BenefitDetailsEntity;
 };
 
-const get = async (
-  id: string
-): Promise<CollectionDetailsEntity | undefined> => {
+const get = async (id: string): Promise<BenefitDetailsEntity | undefined> => {
   const collection = getCollection();
 
   const isIdValid = ObjectId.isValid(id);
@@ -31,10 +29,10 @@ const get = async (
 
 const getByIds = async (
   ids: string[]
-): Promise<(CollectionDetailsEntity | undefined)[]> => {
+): Promise<(BenefitDetailsEntity | undefined)[]> => {
   const collection = getCollection();
 
-  const mapIds: { [id: string]: CollectionDetailsEntity | undefined } = {};
+  const mapIds: { [id: string]: BenefitDetailsEntity | undefined } = {};
   const queryIds = ids.filter((id) => ObjectId.isValid(id));
 
   const documents = await collection
@@ -50,7 +48,7 @@ const getByIds = async (
 
 const set = async (
   id: string,
-  details: CollectionDetailsEntity
+  details: BenefitDetailsEntity
 ): Promise<void> => {
   const collection = getCollection();
 
@@ -61,11 +59,11 @@ const set = async (
 };
 
 const getCollection = () => {
-  if (!collections || !collections.collectionDetails) {
+  if (!collections || !collections.benefitDetails) {
     throw new Error("no database");
   }
 
-  return collections.collectionDetails;
+  return collections.benefitDetails;
 };
 
 export default {

@@ -1,28 +1,35 @@
 import { ObjectId, WithId } from "mongodb";
 import { collections } from "../../db";
+import { BenefitDetailsEntity } from "./benefit-details";
+import { BenefitEntity } from "./benefit";
+import { BenefitCollectionEntity } from "./benefit-collection";
 
-export type CollectionEntity = {
+export type BenefitQueryEntity = {
   id: string;
   createdTime: number;
   deletedTime?: number;
+  details?: BenefitDetailsEntity;
+  collection?: BenefitCollectionEntity;
 };
 
-export type CollectionMongoEntity = {
+export type BenefitQueryMongoEntity = {
   createdTime: number;
   deletedTime?: number;
+  details?: BenefitDetailsEntity;
+  collection?: BenefitCollectionEntity;
 };
 
-const parseEntity = (
-  document: WithId<CollectionMongoEntity>
-): CollectionEntity => {
+const parseEntity = (collection: WithId<BenefitQueryMongoEntity>) => {
   return {
-    id: document._id.toHexString(),
-    createdTime: document.createdTime,
-    deletedTime: document.deletedTime,
+    id: collection._id.toHexString(),
+    createdTime: collection.createdTime,
+    deletedTime: collection.deletedTime,
+    details: collection.details,
+    collection: collection.collection,
   };
 };
 
-const get = async (id: string): Promise<CollectionEntity | undefined> => {
+const get = async (id: string): Promise<BenefitQueryEntity | undefined> => {
   const collection = getCollection();
 
   const isIdValid = ObjectId.isValid(id);
@@ -40,10 +47,10 @@ const get = async (id: string): Promise<CollectionEntity | undefined> => {
 
 const getByIds = async (
   ids: string[]
-): Promise<(CollectionEntity | undefined)[]> => {
+): Promise<(BenefitQueryEntity | undefined)[]> => {
   const collection = getCollection();
 
-  const mapIds: { [id: string]: CollectionEntity | undefined } = {};
+  const mapIds: { [id: string]: BenefitEntity | undefined } = {};
 
   const queryIds = ids.filter((id) => ObjectId.isValid(id));
 
@@ -60,49 +67,23 @@ const getByIds = async (
   return ids.map((key) => mapIds[key]);
 };
 
-const getAll = async (): Promise<CollectionEntity[]> => {
+export const getAll = async (): Promise<BenefitQueryEntity[]> => {
   const collection = getCollection();
   const documents = await collection.find().toArray();
   const parsedDocuments = documents.map((document) => parseEntity(document));
   return parsedDocuments;
 };
 
-const create = async (): Promise<{ id: string }> => {
-  const collection = getCollection();
-  const insertedResult = await collection.insertOne({
-    createdTime: Date.now(),
-  });
-  return { id: insertedResult.insertedId.toHexString() };
-};
-
-const deleteItem = async (id: string): Promise<void> => {
-  const collection = getCollection();
-
-  const isIdValid = ObjectId.isValid(id);
-  if (!isIdValid) {
-    return undefined;
-  }
-
-  await collection.updateOne(
-    { _id: new ObjectId(id) },
-    {
-      $set: { deletedTime: Date.now() },
-    }
-  );
-};
-
 const getCollection = () => {
-  if (!collections || !collections.collection) {
+  if (!collections || !collections.benefitQuery) {
     throw new Error("no database");
   }
 
-  return collections.collection;
+  return collections.benefitQuery;
 };
 
 export default {
   get,
   getByIds,
   getAll,
-  create,
-  deleteItem,
 };

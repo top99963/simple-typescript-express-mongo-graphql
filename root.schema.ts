@@ -1,20 +1,26 @@
 import { GraphQLObjectType, GraphQLSchema } from "graphql";
 import {
-  collectionQuerySchema,
-  collectionMutationSchema,
-} from "./collection/collection.schema";
+  CollectionMutationSchema,
+  CollectionQuerySchema,
+} from "./collection/gateway/collection.schema";
+import {
+  BenefitMutationSchema,
+  BenefitQuerySchema,
+} from "./collection-benefit/gateway/benefit.schema";
 
 const rootQuery = new GraphQLObjectType({
   name: "Query",
   fields: {
-    ...collectionQuerySchema,
+    ...CollectionQuerySchema,
+    ...BenefitQuerySchema,
   },
 });
 
 const rootMutation = new GraphQLObjectType({
   name: "Mutation",
   fields: {
-    ...collectionMutationSchema,
+    ...CollectionMutationSchema,
+    ...BenefitMutationSchema,
   },
 });
 

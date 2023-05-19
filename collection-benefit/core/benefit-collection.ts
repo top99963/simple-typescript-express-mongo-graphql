@@ -1,19 +1,17 @@
 import { ObjectId } from "mongodb";
 import { collections } from "../../db";
 
-export type CollectionDetailsEntity = {
-  title: string;
-  description: string;
-  collectionAddress: string;
+export type BenefitCollectionEntity = {
+  collectionId: string;
 };
 
-export type CollectionDetailsMongoEntity = {
-  details: CollectionDetailsEntity;
+export type BenefitCollectionMongoEntity = {
+  collection: BenefitCollectionEntity;
 };
 
 const get = async (
   id: string
-): Promise<CollectionDetailsEntity | undefined> => {
+): Promise<BenefitCollectionEntity | undefined> => {
   const collection = getCollection();
 
   const isIdValid = ObjectId.isValid(id);
@@ -26,15 +24,15 @@ const get = async (
     return undefined;
   }
 
-  return document.details;
+  return document.collection;
 };
 
 const getByIds = async (
   ids: string[]
-): Promise<(CollectionDetailsEntity | undefined)[]> => {
+): Promise<(BenefitCollectionEntity | undefined)[]> => {
   const collection = getCollection();
 
-  const mapIds: { [id: string]: CollectionDetailsEntity | undefined } = {};
+  const mapIds: { [id: string]: BenefitCollectionEntity | undefined } = {};
   const queryIds = ids.filter((id) => ObjectId.isValid(id));
 
   const documents = await collection
@@ -43,29 +41,29 @@ const getByIds = async (
     })
     .toArray();
   documents.forEach((document) => {
-    mapIds[document._id.toHexString()] = document.details;
+    mapIds[document._id.toHexString()] = document.collection;
   });
   return ids.map((key) => mapIds[key]);
 };
 
 const set = async (
   id: string,
-  details: CollectionDetailsEntity
+  _collection: BenefitCollectionEntity
 ): Promise<void> => {
   const collection = getCollection();
 
   await collection.updateOne(
     { _id: new ObjectId(id) },
-    { $set: { details: details } }
+    { $set: { collection: _collection } }
   );
 };
 
 const getCollection = () => {
-  if (!collections || !collections.collectionDetails) {
+  if (!collections || !collections.benefitCollection) {
     throw new Error("no database");
   }
 
-  return collections.collectionDetails;
+  return collections.benefitCollection;
 };
 
 export default {

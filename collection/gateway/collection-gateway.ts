@@ -6,7 +6,7 @@ const getAll = () => {
   return CollectionQueryManager.getAll();
 };
 
-const get = (parent, { id }) => {
+const get = (id: string) => {
   return CollectionQueryManager.get(id);
 };
 
@@ -15,8 +15,13 @@ const create = async () => {
   return await CollectionQueryManager.get(id);
 };
 
-const setDetails = async (parent, { id, details }) => {
+const setDetails = async (id: string, details: any) => {
   await CollectionDetailsManager.set(id, details);
+  return await CollectionQueryManager.get(id);
+};
+
+const deleteItem = async (id: string) => {
+  await CollectionManager.deleteItem(id);
   return await CollectionQueryManager.get(id);
 };
 
@@ -25,4 +30,5 @@ export default {
   getAll,
   create,
   setDetails,
+  deleteItem,
 };

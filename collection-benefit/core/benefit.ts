@@ -1,20 +1,20 @@
 import { ObjectId, WithId } from "mongodb";
 import { collections } from "../../db";
 
-export type CollectionEntity = {
+export type BenefitEntity = {
   id: string;
   createdTime: number;
   deletedTime?: number;
 };
 
-export type CollectionMongoEntity = {
+export type BenefitMongoEntity = {
   createdTime: number;
   deletedTime?: number;
 };
 
 const parseEntity = (
-  document: WithId<CollectionMongoEntity>
-): CollectionEntity => {
+  document: WithId<BenefitMongoEntity>
+): BenefitEntity => {
   return {
     id: document._id.toHexString(),
     createdTime: document.createdTime,
@@ -22,7 +22,9 @@ const parseEntity = (
   };
 };
 
-const get = async (id: string): Promise<CollectionEntity | undefined> => {
+const get = async (
+  id: string
+): Promise<BenefitEntity | undefined> => {
   const collection = getCollection();
 
   const isIdValid = ObjectId.isValid(id);
@@ -40,10 +42,10 @@ const get = async (id: string): Promise<CollectionEntity | undefined> => {
 
 const getByIds = async (
   ids: string[]
-): Promise<(CollectionEntity | undefined)[]> => {
+): Promise<(BenefitEntity | undefined)[]> => {
   const collection = getCollection();
 
-  const mapIds: { [id: string]: CollectionEntity | undefined } = {};
+  const mapIds: { [id: string]: BenefitEntity | undefined } = {};
 
   const queryIds = ids.filter((id) => ObjectId.isValid(id));
 
@@ -60,7 +62,7 @@ const getByIds = async (
   return ids.map((key) => mapIds[key]);
 };
 
-const getAll = async (): Promise<CollectionEntity[]> => {
+const getAll = async (): Promise<BenefitEntity[]> => {
   const collection = getCollection();
   const documents = await collection.find().toArray();
   const parsedDocuments = documents.map((document) => parseEntity(document));
@@ -92,11 +94,11 @@ const deleteItem = async (id: string): Promise<void> => {
 };
 
 const getCollection = () => {
-  if (!collections || !collections.collection) {
+  if (!collections || !collections.benefit) {
     throw new Error("no database");
   }
 
-  return collections.collection;
+  return collections.benefit;
 };
 
 export default {

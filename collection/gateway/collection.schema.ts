@@ -14,7 +14,9 @@ const CollectionQuerySchema: CustomResolveSchema = {
     args: {
       id: { type: new GraphQLNonNull(GraphQLString) },
     },
-    resolve: CollectionGateway.get,
+    resolve: (parent, { id, detail }) => {
+      return CollectionGateway.get(id);
+    },
   },
 };
 
@@ -23,13 +25,15 @@ const CollectionMutationSchema: CustomResolveSchema = {
     type: CollectionType,
     resolve: CollectionGateway.create,
   },
-  collectionSetDetails: {
+  collectionDetailsSet: {
     type: CollectionType,
     args: {
       id: { type: new GraphQLNonNull(GraphQLString) },
       detail: { type: CollectionDetailsInputType },
     },
-    resolve: CollectionGateway.setDetails,
+    resolve: (parent, { id, detail }) => {
+      return CollectionGateway.setDetails(id, detail);
+    },
   },
   collectionDelete: {
     type: CollectionType,
@@ -37,7 +41,7 @@ const CollectionMutationSchema: CustomResolveSchema = {
       id: { type: new GraphQLNonNull(GraphQLString) },
     },
     resolve: (parent, { id }) => {
-      return { id };
+      return CollectionGateway.deleteItem(id);
     },
   },
 };
