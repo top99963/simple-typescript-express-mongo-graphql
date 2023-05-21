@@ -1,12 +1,13 @@
 import { GraphQLList, GraphQLNonNull, GraphQLString } from "graphql";
 import { CustomResolveSchema } from "../../interface";
 
+import { GraphContext } from "../../type";
+import BenefitGateway from "./benefit-gateway";
 import {
   BenefitCollectionInputType,
   BenefitDetailsInputType,
   BenefitType,
 } from "./benefit.type";
-import BenefitGateway from "./benefit-gateway";
 
 const BenefitQuerySchema: CustomResolveSchema = {
   benefits: {
@@ -18,8 +19,8 @@ const BenefitQuerySchema: CustomResolveSchema = {
     args: {
       id: { type: new GraphQLNonNull(GraphQLString) },
     },
-    resolve: (parent, { id, detail }) => {
-      return BenefitGateway.get(id);
+    resolve: async (benefit, { id }, context: GraphContext) => {
+      return context.benefitLoader.load(id);
     },
   },
 };
@@ -27,7 +28,10 @@ const BenefitQuerySchema: CustomResolveSchema = {
 const BenefitMutationSchema: CustomResolveSchema = {
   benefitCreate: {
     type: BenefitType,
-    resolve: BenefitGateway.create,
+    resolve: async (benefit, args, context: GraphContext) => {
+      const id = await BenefitGateway.create();
+      return context.benefitLoader.load(id);
+    },
   },
   benefitDetailsSet: {
     type: BenefitType,
@@ -35,8 +39,9 @@ const BenefitMutationSchema: CustomResolveSchema = {
       id: { type: new GraphQLNonNull(GraphQLString) },
       detail: { type: BenefitDetailsInputType },
     },
-    resolve: (parent, { id, detail }) => {
-      return BenefitGateway.setDetails(id, detail);
+    resolve: async (benefit, { id, detail }, context: GraphContext) => {
+      await BenefitGateway.setDetails(id, detail);
+      return context.benefitLoader.load(id);
     },
   },
   benefitCollectionSet: {
@@ -45,8 +50,9 @@ const BenefitMutationSchema: CustomResolveSchema = {
       id: { type: new GraphQLNonNull(GraphQLString) },
       collection: { type: BenefitCollectionInputType },
     },
-    resolve: (parent, { id, collection }) => {
-      return BenefitGateway.setCollection(id, collection);
+    resolve: async (benefit, { id, collection }, context: GraphContext) => {
+      await BenefitGateway.setCollection(id, collection);
+      return context.benefitLoader.load(id);
     },
   },
   benefitDelete: {
@@ -54,10 +60,12 @@ const BenefitMutationSchema: CustomResolveSchema = {
     args: {
       id: { type: new GraphQLNonNull(GraphQLString) },
     },
-    resolve: (parent, { id }) => {
-      return BenefitGateway.deleteItem(id);
+    resolve: async (benefit, { id }, context: GraphContext) => {
+      await BenefitGateway.deleteItem(id);
+      return context.benefitLoader.load(id);
     },
   },
 };
 
 export { BenefitMutationSchema, BenefitQuerySchema };
+

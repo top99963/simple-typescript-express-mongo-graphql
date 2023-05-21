@@ -10,18 +10,18 @@ import {
 
 const rootQuery = new GraphQLObjectType({
   name: "Query",
-  fields: {
+  fields: () => ({
     ...CollectionQuerySchema,
     ...BenefitQuerySchema,
-  },
+  }),
 });
 
 const rootMutation = new GraphQLObjectType({
   name: "Mutation",
-  fields: {
+  fields: () => ({
     ...CollectionMutationSchema,
     ...BenefitMutationSchema,
-  },
+  }),
 });
 
 const schema = new GraphQLSchema({ query: rootQuery, mutation: rootMutation });

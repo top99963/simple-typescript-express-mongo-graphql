@@ -10,23 +10,26 @@ const get = (id: string) => {
   return CollectionQueryManager.get(id);
 };
 
+const getByIds = (ids: string[]) => {
+  return CollectionQueryManager.getByIds(ids);
+};
+
 const create = async () => {
   const { id } = await CollectionManager.create();
-  return await CollectionQueryManager.get(id);
+  return id;
 };
 
 const setDetails = async (id: string, details: any) => {
   await CollectionDetailsManager.set(id, details);
-  return await CollectionQueryManager.get(id);
 };
 
 const deleteItem = async (id: string) => {
   await CollectionManager.deleteItem(id);
-  return await CollectionQueryManager.get(id);
 };
 
 export default {
   get,
+  getByIds,
   getAll,
   create,
   setDetails,

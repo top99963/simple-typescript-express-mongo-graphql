@@ -3,6 +3,7 @@ import { CustomResolveSchema } from "../../interface";
 
 import { CollectionDetailsInputType, CollectionType } from "./collection.type";
 import CollectionGateway from "./collection-gateway";
+import { GraphContext } from "../../type";
 
 const CollectionQuerySchema: CustomResolveSchema = {
   collections: {
@@ -14,8 +15,8 @@ const CollectionQuerySchema: CustomResolveSchema = {
     args: {
       id: { type: new GraphQLNonNull(GraphQLString) },
     },
-    resolve: (parent, { id, detail }) => {
-      return CollectionGateway.get(id);
+    resolve: (parent, { id }, context: GraphContext) => {
+      return context.collectionLoader.load(id);
     },
   },
 };
@@ -23,7 +24,10 @@ const CollectionQuerySchema: CustomResolveSchema = {
 const CollectionMutationSchema: CustomResolveSchema = {
   collectionCreate: {
     type: CollectionType,
-    resolve: CollectionGateway.create,
+    resolve: async (colelction, _, context: GraphContext) => {
+      const id = await CollectionGateway.create();
+      return context.collectionLoader.load(id);
+    },
   },
   collectionDetailsSet: {
     type: CollectionType,
@@ -31,8 +35,9 @@ const CollectionMutationSchema: CustomResolveSchema = {
       id: { type: new GraphQLNonNull(GraphQLString) },
       detail: { type: CollectionDetailsInputType },
     },
-    resolve: (parent, { id, detail }) => {
-      return CollectionGateway.setDetails(id, detail);
+    resolve: async (colelction, { id, detail }, context: GraphContext) => {
+      await CollectionGateway.setDetails(id, detail);
+      return context.collectionLoader.load(id);
     },
   },
   collectionDelete: {
@@ -40,8 +45,9 @@ const CollectionMutationSchema: CustomResolveSchema = {
     args: {
       id: { type: new GraphQLNonNull(GraphQLString) },
     },
-    resolve: (parent, { id }) => {
-      return CollectionGateway.deleteItem(id);
+    resolve: async (colelction, { id }, context: GraphContext) => {
+      await CollectionGateway.deleteItem(id);
+      return context.collectionLoader.load(id);
     },
   },
 };

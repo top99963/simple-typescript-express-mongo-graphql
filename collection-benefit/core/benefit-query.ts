@@ -74,6 +74,22 @@ export const getAll = async (): Promise<BenefitQueryEntity[]> => {
   return parsedDocuments;
 };
 
+const getByCollectionIds = async (
+  collectionIds: string[]
+): Promise<(BenefitQueryEntity | undefined)[]> => {
+  const collection = getCollection();
+
+  const queryIds = collectionIds.filter((id) => ObjectId.isValid(id));
+
+  const documents = await collection
+    .find({
+      "collection.collectionId": { $in: queryIds },
+    })
+    .toArray();
+
+  return documents.map((document) => parseEntity(document));
+};
+
 const getCollection = () => {
   if (!collections || !collections.benefitQuery) {
     throw new Error("no database");
@@ -86,4 +102,5 @@ export default {
   get,
   getByIds,
   getAll,
+  getByCollectionIds,
 };

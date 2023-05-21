@@ -10,30 +10,31 @@ const getAll = () => {
 const get = (id: string) => {
   return BenefitQueryManager.get(id);
 };
+const getByIds = (ids: string[]) => {
+  return BenefitQueryManager.getByIds(ids);
+};
 
 const create = async () => {
   const { id } = await BenefitManager.create();
-  return await BenefitQueryManager.get(id);
+  return id;
 };
 
 const setDetails = async (id: string, details: any) => {
   await BenefitDetailsManager.set(id, details);
-  return await BenefitQueryManager.get(id);
 };
 
 const setCollection = async (id: string, collection: any) => {
-  await BenefitCollectionManager.set(id, collection);
-  return await BenefitQueryManager.get(id);
+  await BenefitCollectionManager.set(id, { collectionId: collection.id });
 };
 
 const deleteItem = async (id: string) => {
   await BenefitManager.deleteItem(id);
-  return await BenefitQueryManager.get(id);
 };
 
 export default {
   get,
   getAll,
+  getByIds,
   create,
   setDetails,
   setCollection,

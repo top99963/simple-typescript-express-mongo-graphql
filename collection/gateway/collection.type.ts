@@ -1,17 +1,27 @@
 import {
   GraphQLInputObjectType,
+  GraphQLList,
   GraphQLNonNull,
   GraphQLObjectType,
   GraphQLString,
 } from "graphql";
+import { BenefitType } from "../../collection-benefit/gateway/benefit.type";
+import BenefitQueryManager from "../../collection-benefit/core/benefit-query";
+import { GraphContext } from "../../type";
 
-const CollectionType = new GraphQLObjectType({
+const CollectionType: any = new GraphQLObjectType({
   name: "Collection",
   fields: () => ({
     id: { type: new GraphQLNonNull(GraphQLString) },
     createdTime: { type: new GraphQLNonNull(GraphQLString) },
     deletedTime: { type: GraphQLString },
     details: { type: CollectionDetailsType },
+    benefits: {
+      type: new GraphQLList(BenefitType),
+      resolve: async (collection, _, context: GraphContext) => {
+        return context.benefitByCollectionIdLoader.load(collection.id);
+      },
+    },
   }),
 });
 
@@ -33,8 +43,4 @@ const CollectionDetailsInputType = new GraphQLInputObjectType({
   }),
 });
 
-export {
-  CollectionType,
-  CollectionDetailsType,
-  CollectionDetailsInputType,
-};
+export { CollectionType, CollectionDetailsType, CollectionDetailsInputType };
